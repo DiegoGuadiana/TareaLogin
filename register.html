@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login</title>
+  <title>Registro</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -11,7 +11,7 @@
 
     <header class="site-header">
       <div class="header-inner">
-        <div class="brand">Tarea 2</div>
+        <div class="brand">Tarea2</div>
         <nav class="nav">
           <a href="login.html">Login</a>
           <a href="register.html">Registro</a>
@@ -21,20 +21,21 @@
     </header>
 
     <main>
-      <div class="login-box">
-        <h2>Iniciar sesión</h2>
-        <p class="text">Accede con tu cuenta</p>
+      <div class="page-box">
+        <h2>Registro</h2>
+        <p class="text">Crea tu cuenta</p>
 
-        <form action="home.html">
+        <form action="login.html">
+          <input type="text" placeholder="Nombre completo" required>
           <input type="email" placeholder="Correo electrónico" required>
           <input type="password" placeholder="Contraseña" required>
+          <input type="password" placeholder="Confirmar contraseña" required>
 
-          <button type="submit">Entrar</button>
+          <button type="submit">Crear cuenta</button>
         </form>
 
-        <p class="small-text">¿Olvidaste tu contraseña?</p>
         <p class="small-text">
-          ¿No tienes cuenta? <a href="register.html">Regístrate</a>
+          ¿Ya tienes cuenta? <a href="login.html">Inicia sesión</a>
         </p>
       </div>
     </main>
@@ -42,6 +43,7 @@
     <footer class="site-footer">
       <div class="footer-inner">
         <p>© 2026 Tarea2</p>
+        <p>Registro</p>
       </div>
     </footer>
 
