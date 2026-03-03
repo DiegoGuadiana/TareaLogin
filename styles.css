@@ -2,21 +2,74 @@ body {
   margin: 0;
   font-family: Arial, sans-serif;
   background: linear-gradient(120deg, #4facfe, #00f2fe);
-  height: 100vh;
+  min-height: 100vh;
+}
 
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.site-header, .site-footer {
+  padding: 14px 20px;
+  color: white;
+  background: rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(6px);
+}
+
+.header-inner, .footer-inner {
+  max-width: 980px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.brand {
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.nav {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.nav a {
+  color: white;
+  text-decoration: none;
+  font-size: 14px;
+  opacity: 0.95;
+}
+
+.nav a:hover {
+  text-decoration: underline;
+}
+
+.site-footer p {
+  margin: 0;
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+main {
+  flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 30px 16px;
 }
 
 
-.login-box, .home-box {
+.login-box, .home-box, .page-box {
   background: white;
   width: 360px;
   padding: 40px;
   border-radius: 16px;
   text-align: center;
-
   box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.2);
 }
 
@@ -30,12 +83,10 @@ h2 {
   font-size: 14px;
 }
 
-
 input {
   width: 100%;
   padding: 12px;
   margin: 10px 0;
-
   border: 1px solid #ddd;
   border-radius: 10px;
   font-size: 14px;
@@ -45,13 +96,11 @@ button {
   width: 100%;
   padding: 12px;
   margin-top: 15px;
-
   border: none;
   border-radius: 10px;
   background: #4facfe;
   color: white;
   font-size: 16px;
-
   cursor: pointer;
   transition: 0.3s;
 }
@@ -66,7 +115,7 @@ button:hover {
   color: #777;
 }
 
-
+/* HOME CARDS */
 .cards {
   display: flex;
   flex-direction: column;
@@ -94,7 +143,6 @@ button:hover {
   color: #555;
 }
 
-
 .logout {
   display: inline-block;
   margin-top: 25px;
@@ -105,4 +153,27 @@ button:hover {
 
 .logout:hover {
   text-decoration: underline;
+}
+
+
+.link-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.link-list a {
+  display: block;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #e3eaf5;
+  background: #f7faff;
+  text-decoration: none;
+  color: #007bff;
+  font-size: 14px;
+}
+
+.link-list a:hover {
+  background: #eef6ff;
 }

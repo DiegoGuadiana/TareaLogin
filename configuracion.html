@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Configuración</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page">
+
+    <div id="header-slot"></div>
+
+    <main>
+      <div class="page-box">
+        <h2>Configuración</h2>
+        <p class="text">Página interior</p>
+
+        <div class="cards">
+          <div class="mini-card">
+            <h3>Tema</h3>
+            <p>Claro (placeholder)</p>
+          </div>
+          <div class="mini-card">
+            <h3>Notificaciones</h3>
+            <p>Activadas</p>
+          </div>
+        </div>
+
+        <a href="home.html" class="logout">Volver al Home</a>
+      </div>
+    </main>
+
+    <div id="footer-slot"></div>
+
+  </div>
+
+  <script src="app.js"></script>
+  <script src="layout.js"></script>
+  <script>
+    requireAuth();
+    initLayout();
+  </script>
+</body>
+</html>
