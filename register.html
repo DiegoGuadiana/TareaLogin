@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page">
+
+    <div id="header-slot"></div>
+
+    <main>
+      <div class="page-box">
+        <h2>Registro</h2>
+        <p class="text">Crea tu cuenta</p>
+
+        <form id="register-form">
+          <input id="reg-name" type="text" placeholder="Nombre completo" required>
+          <input id="reg-email" type="email" placeholder="Correo electrónico" required>
+          <input id="reg-pass" type="password" placeholder="Contraseña" required>
+          <input id="reg-pass2" type="password" placeholder="Confirmar contraseña" required>
+          <button type="submit">Crear cuenta</button>
+        </form>
+
+        <p class="small-text">
+          ¿Ya tienes cuenta? <a href="login.html">Inicia sesión</a>
+        </p>
+      </div>
+    </main>
+
+    <div id="footer-slot"></div>
+
+  </div>
+
+  <script src="app.js"></script>
+  <script src="layout.js"></script>
+  <script>
+    initLayout();
+    document.getElementById("register-form").addEventListener("submit", handleRegister);
+  </script>
+</body>
+</html>
