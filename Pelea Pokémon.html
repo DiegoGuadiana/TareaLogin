@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pelea Pokémon</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page">
+
+    <div id="header-slot"></div>
+
+    <main>
+      <div class="page-box battle-page">
+        <h2>Pelea Pokémon</h2>
+        <p class="text">Elige 2 Pokémon y pelea por turnos</p>
+
+        <!-- Selección de Pokémon -->
+        <div class="battle-selectors">
+          <div class="mini-card">
+            <h3>Pokémon 1</h3>
+            <input type="text" id="pokemon1-input" placeholder="Ejemplo: pikachu o 25">
+            <button type="button" id="load-pokemon1">Cargar Pokémon 1</button>
+
+            <div id="pokemon1-preview" class="pokemon-preview" style="display:none;">
+              <img id="pokemon1-img" alt="Pokemon 1">
+              <p id="pokemon1-name"></p>
+            </div>
+          </div>
+
+          <div class="mini-card">
+            <h3>Pokémon 2</h3>
+            <input type="text" id="pokemon2-input" placeholder="Ejemplo: charmander o 4">
+            <button type="button" id="load-pokemon2">Cargar Pokémon 2</button>
+
+            <div id="pokemon2-preview" class="pokemon-preview" style="display:none;">
+              <img id="pokemon2-img" alt="Pokemon 2">
+              <p id="pokemon2-name"></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="battle-actions">
+          <button type="button" id="start-battle">Iniciar batalla</button>
+          <button type="button" id="next-turn" disabled>Siguiente turno</button>
+        </div>
+
+        <!-- Estado de batalla -->
+        <div class="battle-status">
+          <div class="battle-header-row">
+            <div class="battle-fighter">
+              <img id="fighter1-img" alt="Pokemon 1" style="display:none;">
+              <div class="battle-fighter-name" id="fighter1-name">Pokémon 1</div>
+            </div>
+
+            <div class="battle-vs">VS</div>
+
+            <div class="battle-fighter">
+              <img id="fighter2-img" alt="Pokemon 2" style="display:none;">
+              <div class="battle-fighter-name" id="fighter2-name">Pokémon 2</div>
+            </div>
+          </div>
+
+          <div class="battle-grid">
+            <div class="hp-box">
+              <div class="hp-row">
+                <div class="hp-label">
+                  <span id="hp1-name">Pokémon 1</span>
+                  <span id="hp1">100%</span>
+                </div>
+                <div class="hp-bar">
+                  <div class="hp-fill" id="hp1-fill" style="width: 100%;"></div>
+                </div>
+              </div>
+
+              <div class="hp-row">
+                <div class="hp-label">
+                  <span id="hp2-name">Pokémon 2</span>
+                  <span id="hp2">100%</span>
+                </div>
+                <div class="hp-bar">
+                  <div class="hp-fill" id="hp2-fill" style="width: 100%;"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="turn-box">
+              <h3>Estado de la batalla</h3>
+              <p><strong>Turno actual:</strong> <span id="turn-info">Aún no inicia</span></p>
+            </div>
+
+            <div class="log-box" id="battle-log">
+              <p>Selecciona dos Pokémon para comenzar.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ganador -->
+        <div class="winner-card" id="winner-box" style="display:none;">
+          <div class="winner-title">Ganador</div>
+          <img id="winner-img" alt="Ganador">
+          <p class="winner-subtitle" id="winner-name"></p>
+        </div>
+
+        <a href="home.html" class="logout">Volver al Home</a>
+      </div>
+    </main>
+
+    <div id="footer-slot"></div>
+
+  </div>
+
+  <script src="app.js"></script>
+  <script src="layout.js"></script>
+  <script>
+    requireAuth();
+    initLayout();
+
+    let pokemon1 = null;
+    let pokemon2 = null;
+    let battleStarted = false;
+    let currentTurn = 1;
+    let currentAttacker = 1;
+
+    function formatName(name) {
+      return name.charAt(0).toUpperCase() + name.slice(1);
+    }
+
+    function getStat(data, statName) {
+      const stat = data.stats.find(s => s.stat.name === statName);
+      return stat ? stat.base_stat : 50;
+    }
+
+    async function fetchPokemon(value) {
+      const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${value.toLowerCase()}`);
+      if (!res.ok) throw new Error("Pokémon no encontrado");
+      const data = await res.json();
+
+      return {
+        id: data.id,
+        name: formatName(data.name),
+        image:
+          data.sprites?.other?.["official-artwork"]?.front_default ||
+          data.sprites?.front_default,
+        stats: {
+          hp: getStat(data, "hp"),
+          attack: getStat(data, "attack"),
+          defense: getStat(data, "defense"),
+          specialAttack: getStat(data, "special-attack"),
+          specialDefense: getStat(data, "special-defense"),
+          speed: getStat(data, "speed")
+        },
+        currentHp: 100,
+        turnsPlayed: 0,
+        defenseBoost: false
+      };
+    }
+
+    function addLog(text) {
+      const log = document.getElementById("battle-log");
+      const p = document.createElement("p");
+      p.textContent = text;
+      log.prepend(p);
+    }
+
+    function updateHpUI() {
+      const hp1 = Math.max(0, Math.round(pokemon1.currentHp));
+      const hp2 = Math.max(0, Math.round(pokemon2.currentHp));
+
+      document.getElementById("hp1").textContent = `${hp1}%`;
+      document.getElementById("hp2").textContent = `${hp2}%`;
+
+      document.getElementById("hp1-fill").style.width = `${hp1}%`;
+      document.getElementById("hp2-fill").style.width = `${hp2}%`;
+    }
+
+    function showWinner(winner) {
+      document.getElementById("winner-box").style.display = "block";
+      document.getElementById("winner-img").src = winner.image;
+      document.getElementById("winner-name").textContent = `${winner.name} es el ganador`;
+      document.getElementById("next-turn").disabled = true;
+    }
+
+    function chooseAction(attacker) {
+      const possibleActions = ["Ataque normal"];
+
+      if (attacker.turnsPlayed >= 3) {
+        possibleActions.push("Ataque especial");
+      }
+
+      if (attacker.turnsPlayed >= 2) {
+        possibleActions.push("Defensa especial");
+      }
+
+      return possibleActions[Math.floor(Math.random() * possibleActions.length)];
+    }
+
+    function processTurn() {
+      if (!battleStarted || pokemon1.currentHp <= 0 || pokemon2.currentHp <= 0) return;
+
+      const attacker = currentAttacker === 1 ? pokemon1 : pokemon2;
+      const defender = currentAttacker === 1 ? pokemon2 : pokemon1;
+
+      attacker.turnsPlayed++;
+      document.getElementById("turn-info").textContent = `Turno ${currentTurn} - ${attacker.name}`;
+
+      const action = chooseAction(attacker);
+
+      if (action === "Defensa especial") {
+        const defenseFails = Math.random() < 0.25;
+
+        if (defenseFails) {
+          addLog(`Turno ${currentTurn}: ${attacker.name} intentó usar Defensa especial, pero falló.`);
+        } else {
+          attacker.defenseBoost = true;
+          addLog(`Turno ${currentTurn}: ${attacker.name} usó Defensa especial y reducirá el próximo daño recibido.`);
+        }
+      } else {
+        const attackFails = Math.random() < 0.2;
+
+        if (attackFails) {
+          addLog(`Turno ${currentTurn}: ${attacker.name} usó ${action}, pero falló.`);
+        } else {
+          let baseDamage = 0;
+
+          if (action === "Ataque normal") {
+            baseDamage = (attacker.stats.attack / defender.stats.defense) * 12;
+          } else if (action === "Ataque especial") {
+            baseDamage = (attacker.stats.specialAttack / defender.stats.specialDefense) * 18;
+          }
+
+          if (defender.defenseBoost) {
+            baseDamage *= 0.5;
+            defender.defenseBoost = false;
+          }
+
+          const damage = Math.max(5, Math.min(30, baseDamage));
+          defender.currentHp -= damage;
+
+          addLog(
+            `Turno ${currentTurn}: ${attacker.name} usó ${action} e hizo ${Math.round(damage)}% de daño. ` +
+            `A ${defender.name} le queda ${Math.max(0, Math.round(defender.currentHp))}% de vida.`
+          );
+        }
+      }
+
+      updateHpUI();
+
+      if (defender.currentHp <= 0) {
+        defender.currentHp = 0;
+        updateHpUI();
+        addLog(`${attacker.name} ganó la batalla.`);
+        showWinner(attacker);
+        return;
+      }
+
+      currentAttacker = currentAttacker === 1 ? 2 : 1;
+      currentTurn++;
+    }
+
+    document.getElementById("load-pokemon1").addEventListener("click", async () => {
+      const value = document.getElementById("pokemon1-input").value.trim();
+      if (!value) return alert("Escribe un Pokémon 1");
+
+      try {
+        pokemon1 = await fetchPokemon(value);
+
+        document.getElementById("pokemon1-img").src = pokemon1.image;
+        document.getElementById("pokemon1-name").textContent = pokemon1.name;
+        document.getElementById("pokemon1-preview").style.display = "block";
+
+        document.getElementById("fighter1-img").src = pokemon1.image;
+        document.getElementById("fighter1-img").style.display = "block";
+        document.getElementById("fighter1-name").textContent = pokemon1.name;
+        document.getElementById("hp1-name").textContent = pokemon1.name;
+
+        addLog(`Pokémon 1 cargado: ${pokemon1.name}`);
+      } catch (err) {
+        alert("No se pudo cargar el Pokémon 1");
+      }
+    });
+
+    document.getElementById("load-pokemon2").addEventListener("click", async () => {
+      const value = document.getElementById("pokemon2-input").value.trim();
+      if (!value) return alert("Escribe un Pokémon 2");
+
+      try {
+        pokemon2 = await fetchPokemon(value);
+
+        document.getElementById("pokemon2-img").src = pokemon2.image;
+        document.getElementById("pokemon2-name").textContent = pokemon2.name;
+        document.getElementById("pokemon2-preview").style.display = "block";
+
+        document.getElementById("fighter2-img").src = pokemon2.image;
+        document.getElementById("fighter2-img").style.display = "block";
+        document.getElementById("fighter2-name").textContent = pokemon2.name;
+        document.getElementById("hp2-name").textContent = pokemon2.name;
+
+        addLog(`Pokémon 2 cargado: ${pokemon2.name}`);
+      } catch (err) {
+        alert("No se pudo cargar el Pokémon 2");
+      }
+    });
+
+    document.getElementById("start-battle").addEventListener("click", () => {
+      if (!pokemon1 || !pokemon2) {
+        alert("Debes cargar ambos Pokémon antes de iniciar.");
+        return;
+      }
+
+      if (pokemon1.id === pokemon2.id) {
+        alert("Elige dos Pokémon diferentes.");
+        return;
+      }
+
+      pokemon1.currentHp = 100;
+      pokemon2.currentHp = 100;
+      pokemon1.turnsPlayed = 0;
+      pokemon2.turnsPlayed = 0;
+      pokemon1.defenseBoost = false;
+      pokemon2.defenseBoost = false;
+
+      currentTurn = 1;
+      battleStarted = true;
+      currentAttacker = pokemon1.stats.speed >= pokemon2.stats.speed ? 1 : 2;
+
+      document.getElementById("battle-log").innerHTML = "";
+      document.getElementById("winner-box").style.display = "none";
+      document.getElementById("next-turn").disabled = false;
+
+      updateHpUI();
+      addLog(`La batalla comenzó entre ${pokemon1.name} y ${pokemon2.name}.`);
+      addLog(`Empieza ${currentAttacker === 1 ? pokemon1.name : pokemon2.name} por tener mayor velocidad.`);
+      document.getElementById("turn-info").textContent = `Turno 1 - ${currentAttacker === 1 ? pokemon1.name : pokemon2.name}`;
+    });
+
+    document.getElementById("next-turn").addEventListener("click", processTurn);
+  </script>
+</body>
+</html>
