@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfil</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page">
+
+    <div id="header-slot"></div>
+
+    <main>
+      <div class="page-box">
+        <h2>Perfil</h2>
+        <p class="text">Página interior</p>
+
+        <div class="cards">
+          <div class="mini-card">
+            <h3>Nombre</h3>
+            <p id="perfil-nombre">Ejemplo</p>
+          </div>
+          <div class="mini-card">
+            <h3>Correo</h3>
+            <p id="perfil-correo">ejemplo@correo.com</p>
+          </div>
+        </div>
+
+        <!-- Pokémon desde PokeAPI -->
+        <div class="mini-card" style="margin-top:16px;">
+          <h3>Pokémon del día</h3>
+          <p class="text" style="margin:6px 0 12px;">Consumido desde pokeapi.com</p>
+
+          <div id="pokemon-box" style="display:flex; align-items:center; gap:12px;">
+            <img id="pokemon-img" alt="Pokemon"
+                 style="width:96px; height:96px; image-rendering:pixelated; display:none;">
+            <div>
+              <p style="margin:0; font-size:13px; color:#555;">Nombre:</p>
+              <p id="pokemon-name" style="margin:2px 0 0; font-weight:700;">Cargando...</p>
+              <p id="pokemon-id" style="margin:4px 0 0; font-size:12px; color:#777;"></p>
+            </div>
+          </div>
+
+          <button id="pokemon-refresh" type="button" style="margin-top:12px;">Cambiar Pokémon</button>
+        </div>
+
+        <a href="home.html" class="logout">Volver al Home</a>
+      </div>
+    </main>
+
+    <div id="footer-slot"></div>
+
+  </div>
+
+  <script src="app.js"></script>
+  <script src="layout.js"></script>
+  <script>
+
+    requireAuth();
+
+    initLayout();
+
+    const session = getSession();
+
+    if (session) {
+      document.getElementById("perfil-nombre").textContent = session.name;
+      document.getElementById("perfil-correo").textContent = session.email;
+    }
+
+    // ===== PokeAPI =====
+    async function loadPokemon(id) {
+      const nameEl = document.getElementById("pokemon-name");
+      const idEl = document.getElementById("pokemon-id");
+      const imgEl = document.getElementById("pokemon-img");
+
+      try {
+        nameEl.textContent = "Cargando...";
+        idEl.textContent = "";
+        imgEl.style.display = "none";
+
+        const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
+        if (!res.ok) throw new Error("No se pudo obtener el Pokémon");
+
+        const data = await res.json();
+
+        const prettyName = data.name.charAt(0).toUpperCase() + data.name.slice(1);
+        const sprite =
+          data.sprites?.other?.["official-artwork"]?.front_default ||
+          data.sprites?.front_default;
+
+        nameEl.textContent = prettyName;
+        idEl.textContent = `ID: ${data.id}`;
+
+        if (sprite) {
+          imgEl.src = sprite;
+          imgEl.style.display = "block";
+        }
+
+        console.log("Pokémon cargado:", { id: data.id, name: data.name });
+      } catch (err) {
+        console.error(err);
+        nameEl.textContent = "Error al cargar Pokémon";
+        idEl.textContent = "";
+        imgEl.style.display = "none";
+      }
+    }
+
+    function randomPokemonId() {
+      return Math.floor(Math.random() * 151) + 1; 
+    }
+
+    loadPokemon(randomPokemonId());
+
+    document.getElementById("pokemon-refresh").addEventListener("click", () => {
+      loadPokemon(randomPokemonId());
+    });
+  </script>
+</body>
+</html>

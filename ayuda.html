@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ayuda</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="page">
+
+    <div id="header-slot"></div>
+
+    <main>
+      <div class="page-box">
+        <h2>Ayuda</h2>
+        <p class="text">Página interior</p>
+
+        <div class="mini-card">
+          <h3>FAQ</h3>
+          <p>1) ¿Cómo entro? → En Login</p>
+          <p>2) ¿Cómo me registro? → En Registro</p>
+          <p>3) ¿Cómo cierro sesión? → Botón “Salir” en el header o “Cerrar sesión” en Home</p>
+        </div>
+
+        <a href="home.html" class="logout">Volver al Home</a>
+      </div>
+    </main>
+
+    <div id="footer-slot"></div>
+
+  </div>
+
+  <script src="app.js"></script>
+  <script src="layout.js"></script>
+  <script>
+    requireAuth();
+    initLayout();
+  </script>
+</body>
+</html>
